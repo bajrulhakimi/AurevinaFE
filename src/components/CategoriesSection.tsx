@@ -102,7 +102,7 @@ export default function CategoriesSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-2 lg:grid-cols-4">
           {visibleCategories.map((category, index) => {
             const style = categoryStyles[category.slug] || categoryStyles["hijab-modern"];
             const Icon = style.Icon;
@@ -125,7 +125,7 @@ export default function CategoriesSection() {
                 <h3 className="text-xl font-bold text-stone-950 transition-colors group-hover:text-[#8f3d5b]">
                   {category.category_name}
                 </h3>
-                <p className="mt-3 min-h-[72px] text-sm leading-6 text-stone-600">{description}</p>
+                <p className="mt-3 hidden min-h-[72px] text-sm leading-6 text-stone-600 sm:block">{description}</p>
                 <p className="mt-3 text-xs font-semibold uppercase tracking-[0.16em] text-stone-400">
                   {category.products_count || 0} produk
                 </p>

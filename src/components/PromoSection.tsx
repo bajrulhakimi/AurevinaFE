@@ -40,13 +40,13 @@ export default function PromoSection() {
   if (products.length === 0) return null;
 
   return (
-    <section className="bg-[#15110f] py-10 text-white">
+    <section className="bg-[#15110f] py-8 text-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#d9b17c]">Harga Spesial</p>
-            <h2 className="mt-2 text-3xl font-bold text-[#d9b17c]">Promo pilihan hari ini</h2>
-            <p className="mt-2 max-w-2xl text-sm text-stone-300">
+            <h2 className="mt-1.5 text-2xl font-bold text-[#d9b17c]">Promo pilihan hari ini</h2>
+            <p className="mt-1.5 max-w-2xl text-xs leading-5 text-stone-300">
               Kode promo hanya dikirim lewat email. Di website, customer cukup melihat produk dengan harga spesial aktif.
             </p>
           </div>
@@ -55,7 +55,7 @@ export default function PromoSection() {
           </Link>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {products.map((product) => {
             const finalPrice = Number(product.final_price || product.base_price);
             const discount = discountPercent(Number(product.base_price), finalPrice);
@@ -64,7 +64,7 @@ export default function PromoSection() {
               <Link
                 key={product.id}
                 to={`/products/${product.id}`}
-                className="group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] transition hover:-translate-y-1 hover:bg-white/[0.1]"
+                className="group overflow-hidden rounded-xl border border-white/10 bg-white/[0.06] transition hover:-translate-y-1 hover:bg-white/[0.1]"
               >
                 <div className="aspect-square bg-white/10">
                   {product.main_image ? (
@@ -75,15 +75,15 @@ export default function PromoSection() {
                     </div>
                   )}
                 </div>
-                <div className="p-4">
+                <div className="p-3.5">
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#d9b17c]">
                     {product.category?.category_name || "Produk Promo"}
                   </p>
-                  <h3 className="mt-2 line-clamp-2 min-h-[2.75rem] font-bold">{product.product_name}</h3>
-                  <div className="mt-3 flex flex-wrap items-baseline gap-2">
-                    {discount > 0 ? <span className="text-sm font-semibold text-red-400">-{discount}%</span> : null}
-                    <span className="text-xl font-black text-white">{formatPrice(finalPrice)}</span>
-                    <span className="text-sm text-stone-400 line-through">{formatPrice(Number(product.base_price))}</span>
+                  <h3 className="mt-2 line-clamp-2 min-h-[2.25rem] text-[13px] font-bold leading-4 sm:min-h-[2.5rem] sm:text-sm sm:leading-5">{product.product_name}</h3>
+                  <div className="mt-2.5 flex flex-wrap items-baseline gap-2">
+                    {discount > 0 ? <span className="text-[11px] font-semibold text-red-400 sm:text-xs">-{discount}%</span> : null}
+                    <span className="text-sm font-black text-white sm:text-lg">{formatPrice(finalPrice)}</span>
+                    <span className="text-[10px] text-stone-400 line-through sm:text-xs">{formatPrice(Number(product.base_price))}</span>
                   </div>
                 </div>
               </Link>

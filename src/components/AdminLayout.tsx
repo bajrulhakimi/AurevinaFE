@@ -98,10 +98,10 @@ export default function AdminLayout() {
   }).format(new Date());
 
   return (
-    <div className="flex h-screen bg-[#f4f1ed] text-slate-900">
-      <aside className="relative w-72 shrink-0 overflow-y-auto bg-[#0b0a09] text-stone-300 shadow-2xl">
+    <div className="flex min-h-screen flex-col bg-[#f4f1ed] text-slate-900 lg:h-screen lg:flex-row">
+      <aside className="relative shrink-0 overflow-y-auto bg-[#0b0a09] text-stone-300 shadow-2xl lg:w-72">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[radial-gradient(circle_at_top_left,rgba(176,74,108,0.34),transparent_48%),radial-gradient(circle_at_top_right,rgba(185,137,94,0.28),transparent_40%)]" />
-        <div className="relative p-6">
+        <div className="relative p-3 sm:p-4 lg:p-6">
           <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.06] p-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#8f3d5b] text-white shadow-lg shadow-[#8f3d5b]/25">
               <Sparkles className="h-5 w-5" />
@@ -112,8 +112,8 @@ export default function AdminLayout() {
             </div>
           </div>
         </div>
-        <nav className="relative px-4 pb-36">
-          <p className="mb-3 px-3 text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-500">Menu Utama</p>
+        <nav className="relative flex gap-2 overflow-x-auto px-3 pb-3 lg:block lg:px-4 lg:pb-36">
+          <p className="hidden mb-3 px-3 text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-500 lg:block">Menu Utama</p>
           {navigation.map((item) => {
             const isActive = location.pathname === item.href || (item.href === "/admin/dashboard" && location.pathname === "/admin");
             const badgeCount = item.href === "/admin/orders" ? notifications.new_orders : item.href === "/admin/chats" ? notifications.unread_chats : 0;
@@ -121,7 +121,7 @@ export default function AdminLayout() {
               <Link
                 key={item.name}
                 to={item.href}
-                className={`group mb-1 flex items-center rounded-2xl px-4 py-3 text-sm font-semibold transition ${
+                className={`group mb-1 flex shrink-0 items-center rounded-2xl px-3 py-2.5 text-xs font-semibold transition sm:text-sm lg:px-4 lg:py-3 ${
                   isActive
                     ? "border border-white/10 bg-white text-[#171412] shadow-xl shadow-black/20"
                     : "text-stone-400 hover:bg-white/[0.08] hover:text-white"
@@ -144,7 +144,7 @@ export default function AdminLayout() {
             );
           })}
         </nav>
-        <div className="absolute bottom-0 left-0 w-full border-t border-white/10 bg-[#0b0a09]/95 p-4 backdrop-blur">
+        <div className="hidden border-t border-white/10 bg-[#0b0a09]/95 p-4 backdrop-blur lg:absolute lg:bottom-0 lg:left-0 lg:block lg:w-full">
           {user && (
             <div className="mb-3 rounded-2xl border border-white/10 bg-white/[0.06] p-3">
               <div className="flex items-center">
@@ -168,13 +168,13 @@ export default function AdminLayout() {
         </div>
       </aside>
 
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <header className="border-b border-stone-200 bg-white/90 shadow-sm backdrop-blur">
-          <div className="flex items-center justify-between gap-5 px-8 py-5">
+          <div className="flex items-center justify-between gap-5 px-4 py-4 sm:px-6 lg:px-8 lg:py-5">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#b9895e]">Admin Panel</p>
               <h1 className="mt-1 text-3xl font-bold tracking-normal text-slate-950">{currentPage.name}</h1>
-              <p className="mt-1 text-sm text-slate-500">Kelola toko, pesanan, konten, dan pelanggan dari satu tempat.</p>
+              <p className="mt-1 hidden text-sm text-slate-500 sm:block">Kelola toko, pesanan, konten, dan pelanggan dari satu tempat.</p>
             </div>
             <div className="hidden min-w-[420px] items-center gap-3 lg:flex">
               <div className="flex flex-1 items-center gap-3 rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-slate-500">
@@ -232,7 +232,7 @@ export default function AdminLayout() {
             </div>
           </div>
         </header>
-        <main className="flex-1 overflow-auto bg-[linear-gradient(180deg,#fbfaf8_0%,#f3f0ec_48%,#eef1f4_100%)] p-6 lg:p-8">
+        <main className="flex-1 overflow-auto bg-[linear-gradient(180deg,#fbfaf8_0%,#f3f0ec_48%,#eef1f4_100%)] p-3 sm:p-5 lg:p-8">
           <div className="mx-auto max-w-[1600px]">
             <Outlet />
           </div>

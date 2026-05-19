@@ -195,20 +195,20 @@ export default function ProductsPage() {
       {promoOnly ? <PromoSection /> : null}
 
       {/* Header */}
-      <div className="bg-[#fbf7f2] py-14">
+      <div className="bg-[#fbf7f2] py-8 sm:py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="mb-3 text-sm font-semibold uppercase tracking-[0.24em] text-[#b9895e]">Shop</p>
-          <h1 className="mb-4 text-4xl font-bold text-stone-950">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-[#b9895e]">Shop</p>
+          <h1 className="mb-3 text-2xl font-bold text-stone-950 sm:text-3xl">
             {selectedCategoryName ? `Koleksi ${selectedCategoryName}` : "Koleksi Produk"}
           </h1>
-          <p className="max-w-2xl text-lg leading-8 text-stone-600">
+          <p className="max-w-2xl text-sm leading-6 text-stone-600 sm:text-base sm:leading-7">
             Temukan hijab dan busana muslim pilihan Aurevina dengan warna lembut, bahan nyaman, dan detail rapi.
           </p>
           {specialFilterLabel ? (
             <button
               type="button"
               onClick={clearSpecialFilter}
-              className="mt-5 rounded-full border border-[#8f3d5b] px-4 py-2 text-sm font-semibold text-[#8f3d5b] hover:bg-white"
+              className="mt-4 rounded-full border border-[#8f3d5b] px-4 py-2 text-sm font-semibold text-[#8f3d5b] hover:bg-white"
             >
               Filter aktif: {specialFilterLabel} x
             </button>
@@ -217,42 +217,54 @@ export default function ProductsPage() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="max-w-7xl mx-auto px-4 py-7 sm:px-6 sm:py-9 lg:px-8">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
           {/* Sidebar - Filter */}
           <div className="lg:col-span-1">
-            <div className="sticky top-24 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
-              <h3 className="font-bold text-lg mb-4 flex items-center gap-2 text-stone-950">
-                <Filter className="h-5 w-5" />
+            <div className="sticky top-20 rounded-xl border border-stone-200 bg-white p-4 shadow-sm">
+              <h3 className="mb-3 flex items-center gap-2 text-base font-bold text-stone-950">
+                <Filter className="h-4 w-4" />
                 Filter
               </h3>
 
               {/* Search */}
-              <div className="mb-6">
-                <label className="block text-sm font-semibold text-stone-700 mb-2">
+              <div className="mb-5">
+                <label className="mb-2 block text-sm font-semibold text-stone-700">
                   Cari Produk
                 </label>
                 <div className="relative">
-                  <Search className="absolute left-3 top-3 h-5 w-5 text-stone-400" />
+                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-stone-400" />
                   <input
                     type="text"
                     placeholder="Nama produk..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full rounded-full border border-stone-300 py-2 pl-10 pr-4 focus:border-transparent focus:ring-2 focus:ring-[#8f3d5b]"
+                    className="w-full rounded-full border border-stone-300 py-2 pl-9 pr-4 text-sm focus:border-transparent focus:ring-2 focus:ring-[#8f3d5b]"
                   />
                 </div>
               </div>
 
               {/* Categories Filter */}
               <div>
-                <label className="block text-sm font-semibold text-stone-700 mb-3">
+                <label className="mb-3 block text-sm font-semibold text-stone-700">
                   Kategori
                 </label>
-                <div className="space-y-2">
+                <select
+                  value={selectedCategory ?? ""}
+                  onChange={(event) => chooseCategory(event.target.value || null)}
+                  className="w-full rounded-xl border border-stone-300 bg-white px-4 py-2.5 text-sm font-semibold text-stone-800 shadow-sm focus:border-[#8f3d5b] focus:outline-none focus:ring-2 focus:ring-[#8f3d5b]/15 lg:hidden"
+                >
+                  <option value="">Semua Kategori</option>
+                  {categories.map((category) => (
+                    <option key={category.slug} value={category.slug}>
+                      {category.category_name}
+                    </option>
+                  ))}
+                </select>
+                <div className="hidden space-y-2 lg:block">
                   <button
                     onClick={() => chooseCategory(null)}
-                    className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
+                    className={`w-full rounded-lg px-3 py-2 text-left text-sm transition-colors ${
                       selectedCategory === null
                         ? "bg-[#8f3d5b] text-white"
                         : "bg-stone-100 text-stone-700 hover:bg-stone-200"
@@ -264,7 +276,7 @@ export default function ProductsPage() {
                     <button
                       key={category.slug}
                       onClick={() => chooseCategory(category.slug)}
-                      className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
+                      className={`w-full rounded-lg px-3 py-2 text-left text-sm transition-colors ${
                         selectedCategory === category.slug
                           ? "bg-[#8f3d5b] text-white"
                           : "bg-stone-100 text-stone-700 hover:bg-stone-200"
@@ -279,26 +291,26 @@ export default function ProductsPage() {
           </div>
 
           {/* Products Grid */}
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-4">
             {loading ? (
-              <div className="flex justify-center items-center h-96">
+              <div className="flex h-72 items-center justify-center">
                 <div className="text-gray-500">Memuat produk...</div>
               </div>
             ) : filteredProducts.length === 0 ? (
-              <div className="flex justify-center items-center h-96">
+              <div className="flex h-72 items-center justify-center">
                 <div className="text-gray-500">Tidak ada produk yang ditemukan</div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
                 {filteredProducts.map(product => (
                   <Link
                     key={product.id}
                     to={`/products/${product.id}`}
                     state={{ product }}
-                    className="cursor-pointer overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-[#8f3d5b]"
+                    className="cursor-pointer overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-[#8f3d5b]"
                   >
                     {/* Product Image */}
-                    <div className="flex h-60 items-center justify-center bg-[#efe1d4]">
+                    <div className="flex h-32 items-center justify-center bg-[#efe1d4] sm:h-48">
                       {product.main_image ? (
                         <img
                           src={product.main_image}
@@ -306,33 +318,33 @@ export default function ProductsPage() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <ShoppingCart className="h-12 w-12 text-[#8f3d5b]" />
+                        <ShoppingCart className="h-8 w-8 text-[#8f3d5b] sm:h-9 sm:w-9" />
                       )}
                     </div>
 
                     {/* Product Info */}
-                    <div className="p-4">
+                    <div className="p-2.5 sm:p-3.5">
                       <div className="mb-2">
-                        <span className="inline-block rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-[#8f3d5b]">
+                        <span className="inline-block rounded-full bg-rose-50 px-2 py-0.5 text-[10px] font-semibold text-[#8f3d5b] sm:px-2.5 sm:py-1 sm:text-[11px]">
                           {product.category?.category_name || "Produk"}
                         </span>
                       </div>
-                      <h3 className="mb-2 line-clamp-2 font-bold text-stone-950">
+                      <h3 className="mb-1.5 line-clamp-2 text-[13px] font-bold leading-4 text-stone-950 sm:text-[15px] sm:leading-5">
                         {product.product_name}
                       </h3>
-                      <p className="mb-4 line-clamp-2 text-sm leading-6 text-stone-600">
+                      <p className="mb-3 hidden text-xs leading-5 text-stone-600 sm:line-clamp-2">
                         {product.description}
                       </p>
 
                       {/* Rating */}
-                      <div className="flex items-center gap-1 mb-4">
+                      <div className="mb-2 flex items-center gap-0.5 sm:mb-3 sm:gap-1">
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
-                            className={`h-4 w-4 ${i < Math.round(Number(product.rating_average || 0)) ? "fill-yellow-400 text-yellow-400" : "text-stone-300"}`}
+                            className={`h-3 w-3 sm:h-3.5 sm:w-3.5 ${i < Math.round(Number(product.rating_average || 0)) ? "fill-yellow-400 text-yellow-400" : "text-stone-300"}`}
                           />
                         ))}
-                        <span className="text-xs text-gray-500 ml-2">
+                        <span className="ml-1 hidden text-[10px] text-gray-500 sm:inline sm:text-[11px]">
                           {Number(product.rating_average || 0).toFixed(1)} ({product.reviews_count || 0} ulasan)
                         </span>
                       </div>
@@ -342,21 +354,21 @@ export default function ProductsPage() {
                         <div>
                           {product.has_special_price && product.final_price ? (
                             <div className="flex flex-wrap items-baseline gap-2">
-                              <span className="text-sm font-semibold text-red-500">
+                              <span className="text-[11px] font-semibold text-red-500 sm:text-xs">
                                 -{discountPercent(product.base_price, product.final_price)}%
                               </span>
-                              <span className="text-lg font-bold text-stone-950">{formatPrice(product.final_price)}</span>
-                              <span className="text-xs text-stone-400 line-through">{formatPrice(product.base_price)}</span>
+                              <span className="whitespace-nowrap text-[13px] font-bold text-stone-950 sm:text-base">{formatPrice(product.final_price)}</span>
+                              <span className="text-[10px] text-stone-400 line-through sm:text-xs">{formatPrice(product.base_price)}</span>
                             </div>
                           ) : (
-                            <div className="text-lg font-bold text-[#8f3d5b]">{formatPrice(product.base_price)}</div>
+                            <div className="whitespace-nowrap text-[13px] font-bold text-[#8f3d5b] sm:text-base">{formatPrice(product.base_price)}</div>
                           )}
                         </div>
                         <span
                           className="rounded-full bg-[#8f3d5b] p-2 text-white transition-colors hover:bg-[#76304a]"
                           aria-label={`Lihat detail ${product.product_name}`}
                         >
-                          <ShoppingCart className="h-5 w-5" />
+                          <ShoppingCart className="h-4 w-4" />
                         </span>
                       </div>
                     </div>

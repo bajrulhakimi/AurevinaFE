@@ -21,24 +21,24 @@ export default function Navbar() {
   return (
     <nav className="sticky top-0 z-50 border-b border-rose-100/80 bg-white/90 shadow-sm backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-18 min-h-[72px]">
+        <div className="flex min-h-[58px] items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="group flex items-center gap-3">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-rose-100 bg-white shadow-sm transition-transform group-hover:scale-105">
-              <img src={logo1} alt="Aurevina Logo" className="h-10 w-10 object-contain" />
+          <Link to="/" className="group flex items-center gap-2.5">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-rose-100 bg-white shadow-sm transition-transform group-hover:scale-105">
+              <img src={logo1} alt="Aurevina Logo" className="h-8 w-8 object-contain" />
             </span>
             <div>
-              <div className="text-2xl font-bold leading-none tracking-normal text-stone-950">
+              <div className="text-xl font-bold leading-none tracking-normal text-stone-950">
                 Aurevina
               </div>
-              <div className="mt-1 text-[11px] font-semibold uppercase leading-none tracking-[0.22em] text-[#b9895e]">
+              <div className="mt-1 text-[9px] font-semibold uppercase leading-none tracking-[0.22em] text-[#b9895e]">
                 Modest Fashion
               </div>
             </div>
           </Link>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden items-center gap-7 text-[15px] md:flex">
             <Link to="/" className={`transition-colors ${isActive("/")}`}>
               Beranda
             </Link>
@@ -54,12 +54,12 @@ export default function Navbar() {
           </div>
 
           {/* Right side - Cart & Login */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden items-center gap-3 md:flex">
             <Link
               to="/cart"
               className="relative flex items-center gap-2 text-stone-700 transition-colors hover:text-[#8f3d5b]"
             >
-              <ShoppingCart className="h-5 w-5" />
+              <ShoppingCart className="h-4 w-4" />
               <span className="text-sm font-semibold">Keranjang</span>
               {cartCount > 0 && (
                 <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-[#d15f73] text-xs font-bold text-white">
@@ -71,7 +71,7 @@ export default function Navbar() {
               <div className="flex items-center gap-3">
                 <Link
                   to="/profile"
-                  className="flex items-center gap-2 rounded-full bg-[#fbf7f2] px-3 py-2 text-sm font-semibold text-stone-800 transition hover:bg-[#f4e5dd] hover:text-[#8f3d5b]"
+                  className="flex items-center gap-2 rounded-full bg-[#fbf7f2] px-3 py-1.5 text-sm font-semibold text-stone-800 transition hover:bg-[#f4e5dd] hover:text-[#8f3d5b]"
                 >
                   <UserRound className="h-4 w-4" />
                   {user?.name}
@@ -79,7 +79,7 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={logout}
-                  className="rounded-full border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700 transition-colors hover:bg-stone-50"
+                  className="rounded-full border border-stone-300 px-4 py-1.5 text-sm font-semibold text-stone-700 transition-colors hover:bg-stone-50"
                 >
                   Keluar
                 </button>
@@ -88,14 +88,14 @@ export default function Navbar() {
               <>
                 <Link
                   to="/login"
-                  className="flex items-center gap-2 rounded-full border border-[#8f3d5b] px-4 py-2 text-[#8f3d5b] transition-colors hover:bg-rose-50"
+                  className="flex items-center gap-2 rounded-full border border-[#8f3d5b] px-4 py-1.5 text-[#8f3d5b] transition-colors hover:bg-rose-50"
                 >
                   <LogIn className="h-4 w-4" />
                   <span className="text-sm font-semibold">Login</span>
                 </Link>
                 <Link
                   to="/signup"
-                  className="flex items-center gap-2 rounded-full bg-[#8f3d5b] px-4 py-2 text-white shadow-sm transition-colors hover:bg-[#76304a]"
+                  className="flex items-center gap-2 rounded-full bg-[#8f3d5b] px-4 py-1.5 text-white shadow-sm transition-colors hover:bg-[#76304a]"
                 >
                   <UserPlus className="h-4 w-4" />
                   <span className="text-sm font-semibold">Daftar</span>

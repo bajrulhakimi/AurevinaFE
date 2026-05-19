@@ -19,7 +19,7 @@
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
-  font: 18px/145% var(--sans);
+  font: 16px/145% var(--sans);
   letter-spacing: 0;
   color-scheme: light;
   color: var(--text);
@@ -91,4 +91,87 @@ code {
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
+}
+
+@media (max-width: 640px) {
+  :root {
+    font-size: 14px;
+    line-height: 150%;
+  }
+
+  body {
+    overflow-x: hidden;
+  }
+
+  h1,
+  .text-7xl,
+  .text-6xl,
+  .text-5xl,
+  .text-4xl,
+  .\!text-5xl {
+    font-size: clamp(1.65rem, 8vw, 2.15rem) !important;
+    line-height: 1.12 !important;
+    margin-top: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  h2,
+  .text-3xl {
+    font-size: clamp(1.25rem, 6vw, 1.65rem) !important;
+    line-height: 1.18 !important;
+  }
+
+  .text-2xl {
+    font-size: clamp(1.1rem, 5vw, 1.35rem) !important;
+    line-height: 1.25 !important;
+  }
+
+  p,
+  .text-lg,
+  .text-base {
+    font-size: 0.92rem;
+    line-height: 1.65;
+  }
+
+  .rounded-\[2rem\],
+  .rounded-\[32px\],
+  .rounded-\[28px\],
+  .rounded-3xl {
+    border-radius: 1.25rem !important;
+  }
+
+  .p-10 {
+    padding: 1.25rem !important;
+  }
+
+  .p-8,
+  .p-7,
+  .p-6 {
+    padding: 1rem !important;
+  }
+
+  .py-20,
+  .py-16,
+  .py-14,
+  .py-12 {
+    padding-top: 2.5rem !important;
+    padding-bottom: 2.5rem !important;
+  }
+
+  .gap-10,
+  .gap-8 {
+    gap: 1.25rem !important;
+  }
+
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    max-width: 100%;
+  }
+
+  table {
+    font-size: 0.82rem;
+  }
 }

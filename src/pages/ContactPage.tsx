@@ -5,7 +5,7 @@ import Footer from "../components/Footer";
 import API from "../services/api";
 import { defaultSettings } from "../types/settings";
 import type { SiteSettings } from "../types/settings";
-import heroImage from "../assets/hero.png";
+import logoImage from "../assets/logo.png";
 
 export default function ContactPage() {
   const [settings, setSettings] = useState<SiteSettings>(defaultSettings);
@@ -96,11 +96,11 @@ export default function ContactPage() {
             <div className="relative">
               <div className="absolute inset-0 rounded-[2rem] bg-[#8f3d5b]/10 blur-2xl" />
               <div className="relative overflow-hidden rounded-[2rem] border border-white bg-white p-3 shadow-2xl shadow-stone-900/10">
-                <div className="aspect-[4/5] overflow-hidden rounded-[1.5rem] bg-stone-100">
+                <div className="aspect-[4/3] overflow-hidden rounded-[1.5rem] bg-[#fbf7f2] p-6">
                   <img
-                    src={settings.about_image_url || heroImage}
+                    src={logoImage}
                     alt={`Tentang ${settings.store_name}`}
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-contain"
                   />
                 </div>
                 <div className="absolute bottom-7 left-7 right-7 rounded-3xl bg-stone-950/82 p-5 text-white backdrop-blur">
@@ -187,7 +187,7 @@ export default function ContactPage() {
             <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[#d9b17c]">Butuh Bantuan?</p>
-                <h2 className="mt-3 text-3xl font-bold">Chat langsung dengan admin</h2>
+                <h2 className="mt-3 text-3xl font-bold text-[#fbf7f2]">Chat langsung dengan admin</h2>
                 <p className="mt-3 max-w-2xl leading-7 text-stone-300">
                   Tanya stok, warna, pesanan, atau pembayaran lewat fitur chat agar percakapan tersimpan rapi.
                 </p>

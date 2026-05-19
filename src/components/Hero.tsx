@@ -19,6 +19,12 @@ interface HeroProduct {
   };
 }
 
+interface StoreStats {
+  products_count: number;
+  customers_count: number;
+  rating_average: number;
+}
+
 const formatRupiah = (value: number) =>
   new Intl.NumberFormat("id-ID", {
     style: "currency",
@@ -31,9 +37,20 @@ const discountPercent = (basePrice: number, finalPrice?: number) => {
   return Math.round(((basePrice - finalPrice) / basePrice) * 100);
 };
 
+const formatCompactNumber = (value: number) =>
+  new Intl.NumberFormat("id-ID", {
+    notation: value >= 1000 ? "compact" : "standard",
+    maximumFractionDigits: value >= 1000 ? 1 : 0,
+  }).format(value);
+
 export default function Hero() {
   const [products, setProducts] = useState<HeroProduct[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [stats, setStats] = useState<StoreStats>({
+    products_count: 0,
+    customers_count: 0,
+    rating_average: 0,
+  });
 
   useEffect(() => {
     const fetchHeroProducts = async () => {
@@ -53,6 +70,21 @@ export default function Hero() {
     };
 
     fetchHeroProducts();
+  }, []);
+
+  useEffect(() => {
+    API.get("/store-stats")
+      .then((response) => {
+        const nextStats = response.data?.data as Partial<StoreStats> | undefined;
+        setStats({
+          products_count: Number(nextStats?.products_count || 0),
+          customers_count: Number(nextStats?.customers_count || 0),
+          rating_average: Number(nextStats?.rating_average || 0),
+        });
+      })
+      .catch((error) => {
+        console.error("Failed to load store stats:", error);
+      });
   }, []);
 
   useEffect(() => {
@@ -78,19 +110,19 @@ export default function Hero() {
         <div className="absolute inset-0 bg-[linear-gradient(90deg,#fbf7f2_0%,rgba(251,247,242,0.96)_35%,rgba(251,247,242,0.72)_100%)]" />
       </div>
 
-      <div className="relative mx-auto max-w-7xl px-4 pb-16 pt-12 sm:px-6 lg:px-8 lg:pb-20 lg:pt-16">
-        <div className="grid min-h-[calc(100vh-88px)] grid-cols-1 items-center gap-12 lg:grid-cols-[1.02fr_0.98fr]">
-          <div className="max-w-2xl space-y-8">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#e8c7b4] bg-white/70 px-4 py-2 text-[#8f3d5b] shadow-sm backdrop-blur">
-              <img src={logo1} alt="Aurevina Logo" className="h-6 w-6 object-contain" />
-              <span className="text-sm font-semibold">Aurevina Modest Fashion</span>
+      <div className="relative mx-auto max-w-7xl px-4 pb-10 pt-8 sm:px-6 sm:pb-16 sm:pt-12 lg:px-8 lg:pb-20 lg:pt-16">
+        <div className="grid min-h-[auto] grid-cols-1 items-center gap-8 sm:gap-12 lg:min-h-[calc(100vh-88px)] lg:grid-cols-[1.02fr_0.98fr]">
+          <div className="max-w-2xl space-y-5 sm:space-y-8">
+            <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-[#e8c7b4] bg-white/70 px-3 py-2 text-[#8f3d5b] shadow-sm backdrop-blur sm:px-4">
+              <img src={logo1} alt="Aurevina Logo" className="h-5 w-5 object-contain sm:h-6 sm:w-6" />
+              <span className="truncate text-sm font-semibold">Aurevina Modest Fashion</span>
             </div>
 
-            <h1 className="max-w-3xl text-5xl font-bold leading-[1.05] text-stone-950 sm:text-6xl lg:text-7xl">
+            <h1 className="max-w-3xl text-[2.65rem] font-bold leading-[1.05] text-stone-950 sm:text-6xl lg:text-7xl">
               Hijab premium untuk gaya anggun setiap hari.
             </h1>
 
-            <p className="max-w-xl text-lg leading-8 text-stone-600 sm:text-xl">
+            <p className="max-w-xl text-base leading-7 text-stone-600 sm:text-xl sm:leading-8">
               Pilihan pashmina, bergo, dan hijab syar'i dengan bahan nyaman, warna lembut,
               dan potongan rapi untuk tampilan modest yang terlihat mahal tanpa terasa berlebihan.
             </p>
@@ -98,7 +130,7 @@ export default function Hero() {
             <div className="flex flex-col gap-4 sm:flex-row">
               <Link
                 to="/products"
-                className="group inline-flex items-center justify-center rounded-full bg-[#8f3d5b] px-8 py-4 font-semibold text-white shadow-lg shadow-rose-900/10 transition-colors hover:bg-[#76304a]"
+                className="group inline-flex items-center justify-center rounded-full bg-[#8f3d5b] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-rose-900/10 transition-colors hover:bg-[#76304a] sm:px-8 sm:py-4 sm:text-base"
               >
                 <ShoppingBag className="mr-2 h-5 w-5" />
                 Belanja Sekarang
@@ -112,26 +144,26 @@ export default function Hero() {
               </Link> */}
             </div>
 
-            <div className="grid grid-cols-1 gap-3 pt-3 sm:grid-cols-3">
+            <div className="hidden grid-cols-1 gap-3 pt-3 sm:grid sm:grid-cols-3">
               <div className="rounded-xl border border-white/70 bg-white/55 p-4 shadow-sm backdrop-blur">
                 <BadgeCheck className="mb-3 h-5 w-5 text-[#8f3d5b]" />
-                <div className="text-2xl font-bold text-stone-950">500+</div>
+                <div className="text-2xl font-bold text-stone-950">{formatCompactNumber(stats.products_count)}</div>
                 <div className="text-sm text-stone-600">Produk pilihan</div>
               </div>
               <div className="rounded-xl border border-white/70 bg-white/55 p-4 shadow-sm backdrop-blur">
                 <Heart className="mb-3 h-5 w-5 text-[#d15f73]" />
-                <div className="text-2xl font-bold text-stone-950">10K+</div>
-                <div className="text-sm text-stone-600">Pelanggan puas</div>
+                <div className="text-2xl font-bold text-stone-950">{formatCompactNumber(stats.customers_count)}</div>
+                <div className="text-sm text-stone-600">Pelanggan</div>
               </div>
               <div className="rounded-xl border border-white/70 bg-white/55 p-4 shadow-sm backdrop-blur">
                 <ShieldCheck className="mb-3 h-5 w-5 text-[#b9895e]" />
-                <div className="text-2xl font-bold text-stone-950">4.8/5</div>
+                <div className="text-2xl font-bold text-stone-950">{stats.rating_average.toFixed(1)}/5</div>
                 <div className="text-sm text-stone-600">Rating toko</div>
               </div>
             </div>
           </div>
 
-          <div className="relative">
+          <div className="relative hidden sm:block">
             <div className="relative mx-auto max-w-[560px] overflow-hidden rounded-[32px] border border-white/80 bg-white/75 p-4 shadow-2xl shadow-stone-900/10 backdrop-blur md:p-5">
               {activeProduct ? (
                 <>
