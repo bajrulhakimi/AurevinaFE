@@ -29,10 +29,10 @@ dist
 Isi di Vercel melalui menu Project Settings -> Environment Variables:
 
 ```env
-VITE_API_BASE_URL=https://api-domain-anda.com/api/v1
+VITE_API_BASE_URL=https://api-domain-rumahweb-anda.com/api/v1
 ```
 
-Ganti `https://api-domain-anda.com` dengan domain/subdomain backend di DomaiNesia.
+Ganti `https://api-domain-rumahweb-anda.com` dengan domain/subdomain backend di Rumahweb.
 
 Contoh:
 
@@ -45,4 +45,10 @@ VITE_API_BASE_URL=https://api.aurevina.com/api/v1
 File `vercel.json` sudah disiapkan agar semua route React diarahkan ke `index.html`.
 Ini mencegah error 404 ketika halaman seperti `/products/1`, `/blog`, atau `/profile` di-refresh.
 
-Setelah backend DomaiNesia aktif, redeploy frontend di Vercel agar `VITE_API_BASE_URL` ikut terbaca saat build.
+Domain frontend production:
+
+```text
+https://aurevina.vercel.app
+```
+
+Setelah backend Rumahweb aktif, redeploy frontend di Vercel agar `VITE_API_BASE_URL` ikut terbaca saat build.
