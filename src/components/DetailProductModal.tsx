@@ -1,5 +1,5 @@
 import { X, ShoppingCart, Star, Plus, Minus } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type SyntheticEvent } from "react";
 import { useCart } from "../context/useCart";
 
 interface ProductVariant {
@@ -30,6 +30,13 @@ interface DetailProductModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
+
+const fallbackImage = (event: SyntheticEvent<HTMLImageElement>, fallback?: string | null) => {
+  const image = event.currentTarget;
+  if (!fallback || image.src === fallback) return;
+  image.onerror = null;
+  image.src = fallback;
+};
 
 export default function DetailProductModal({
   product,
@@ -127,6 +134,7 @@ export default function DetailProductModal({
                   src={currentImage}
                   alt={`${product.product_name}${selectedColor ? ` - ${selectedColor}` : ""}`}
                   className="h-full w-full object-cover"
+                  onError={(event) => fallbackImage(event, product.main_image)}
                 />
               ) : (
                 <div className="text-center">
@@ -203,6 +211,7 @@ export default function DetailProductModal({
                               src={variantImage}
                               alt={variant.variant_value}
                               className="h-full w-full object-cover"
+                              onError={(event) => fallbackImage(event, product.main_image)}
                             />
                           ) : null}
                         </div>

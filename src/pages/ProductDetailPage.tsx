@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent, type SyntheticEvent } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, MessageCircle, Minus, Package, Plus, ShoppingCart, Star } from "lucide-react";
 import Navbar from "../components/Navbar";
@@ -79,6 +79,13 @@ const variantName = (variant: ProductVariant) =>
 const isColorVariant = (variant: ProductVariant) => {
   const name = variantName(variant);
   return name !== "" && name !== "-";
+};
+
+const fallbackImage = (event: SyntheticEvent<HTMLImageElement>, fallback?: string | null) => {
+  const image = event.currentTarget;
+  if (!fallback || image.src === fallback) return;
+  image.onerror = null;
+  image.src = fallback;
 };
 
 export default function ProductDetailPage() {
@@ -265,7 +272,12 @@ export default function ProductDetailPage() {
             <div className="border-b border-stone-200 p-4 sm:p-6 lg:border-b-0 lg:border-r">
               <div className="aspect-square overflow-hidden rounded-2xl bg-[#efe1d4]">
                 {selectedImage ? (
-                  <img src={selectedImage} alt={product.product_name} className="h-full w-full object-cover" />
+                  <img
+                    src={selectedImage}
+                    alt={product.product_name}
+                    className="h-full w-full object-cover"
+                    onError={(event) => fallbackImage(event, product.main_image || product.images?.[0]?.image_url)}
+                  />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-slate-300">
                     <Package className="h-20 w-20" />
@@ -284,7 +296,12 @@ export default function ProductDetailPage() {
                         selectedImage === image ? "border-[#8f3d5b] ring-2 ring-rose-100" : "border-stone-200"
                       }`}
                     >
-                      <img src={image} alt="Foto produk" className="h-full w-full object-cover" />
+                      <img
+                        src={image}
+                        alt="Foto produk"
+                        className="h-full w-full object-cover"
+                        onError={(event) => fallbackImage(event, product.main_image)}
+                      />
                     </button>
                   ))}
                 </div>
@@ -354,7 +371,14 @@ export default function ProductDetailPage() {
                           } ${variant.stock <= 0 ? "cursor-not-allowed opacity-50" : ""}`}
                         >
                           <span className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-slate-100">
-                            {image ? <img src={image} alt={variantName(variant)} className="h-full w-full object-cover" /> : null}
+                            {image ? (
+                              <img
+                                src={image}
+                                alt={variantName(variant)}
+                                className="h-full w-full object-cover"
+                                onError={(event) => fallbackImage(event, product.main_image)}
+                              />
+                            ) : null}
                           </span>
                           <span className="min-w-0">
                             <span className="block truncate text-sm font-semibold text-slate-900">{variantName(variant)}</span>
