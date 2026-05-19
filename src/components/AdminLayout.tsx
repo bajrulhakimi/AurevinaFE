@@ -99,21 +99,21 @@ export default function AdminLayout() {
 
   return (
     <div className="flex min-h-screen flex-col bg-[#f4f1ed] text-slate-900 lg:h-screen lg:flex-row">
-      <aside className="relative shrink-0 overflow-y-auto bg-[#0b0a09] text-stone-300 shadow-2xl lg:w-72">
+      <aside className="relative flex shrink-0 flex-col overflow-hidden bg-[#0b0a09] text-stone-300 shadow-2xl lg:h-screen lg:w-72">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[radial-gradient(circle_at_top_left,rgba(176,74,108,0.34),transparent_48%),radial-gradient(circle_at_top_right,rgba(185,137,94,0.28),transparent_40%)]" />
-        <div className="relative p-3 sm:p-4 lg:p-6">
-          <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.06] p-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#8f3d5b] text-white shadow-lg shadow-[#8f3d5b]/25">
+        <div className="relative shrink-0 p-3 sm:p-4 lg:p-4">
+          <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.06] p-2.5">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#8f3d5b] text-white shadow-lg shadow-[#8f3d5b]/25">
               <Sparkles className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-white">Aurevina</h2>
-              <p className="text-xs font-medium uppercase tracking-[0.2em] text-[#d9b17c]">Admin Store</p>
+              <h2 className="text-base font-semibold text-white">Aurevina</h2>
+              <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#d9b17c]">Admin Store</p>
             </div>
           </div>
         </div>
-        <nav className="relative flex gap-2 overflow-x-auto px-3 pb-3 lg:block lg:px-4 lg:pb-36">
-          <p className="hidden mb-3 px-3 text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-500 lg:block">Menu Utama</p>
+        <nav className="relative flex gap-2 overflow-x-auto px-3 pb-3 lg:block lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:px-4 lg:pb-3">
+          <p className="hidden mb-2 px-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-stone-500 lg:block">Menu Utama</p>
           {navigation.map((item) => {
             const isActive = location.pathname === item.href || (item.href === "/admin/dashboard" && location.pathname === "/admin");
             const badgeCount = item.href === "/admin/orders" ? notifications.new_orders : item.href === "/admin/chats" ? notifications.unread_chats : 0;
@@ -121,14 +121,14 @@ export default function AdminLayout() {
               <Link
                 key={item.name}
                 to={item.href}
-                className={`group mb-1 flex shrink-0 items-center rounded-2xl px-3 py-2.5 text-xs font-semibold transition sm:text-sm lg:px-4 lg:py-3 ${
+                className={`group mb-1 flex shrink-0 items-center rounded-2xl px-3 py-2.5 text-xs font-semibold transition sm:text-sm lg:px-3 lg:py-2 ${
                   isActive
                     ? "border border-white/10 bg-white text-[#171412] shadow-xl shadow-black/20"
                     : "text-stone-400 hover:bg-white/[0.08] hover:text-white"
                 }`}
               >
                 <span
-                  className={`mr-3 flex h-9 w-9 items-center justify-center rounded-xl transition ${
+                  className={`mr-3 flex h-8 w-8 items-center justify-center rounded-xl transition ${
                     isActive ? "bg-[#f4e5dd] text-[#8f3d5b]" : "bg-white/[0.07] text-stone-400 group-hover:text-[#d9b17c]"
                   }`}
                 >
@@ -144,11 +144,11 @@ export default function AdminLayout() {
             );
           })}
         </nav>
-        <div className="hidden border-t border-white/10 bg-[#0b0a09]/95 p-4 backdrop-blur lg:absolute lg:bottom-0 lg:left-0 lg:block lg:w-full">
+        <div className="hidden shrink-0 border-t border-white/10 bg-[#0b0a09]/95 p-3 backdrop-blur lg:block">
           {user && (
-            <div className="mb-3 rounded-2xl border border-white/10 bg-white/[0.06] p-3">
+            <div className="mb-2 rounded-2xl border border-white/10 bg-white/[0.06] p-2.5">
               <div className="flex items-center">
-                <div className="mr-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-[#b9895e] text-sm font-bold text-white">
+                <div className="mr-3 flex h-9 w-9 items-center justify-center rounded-2xl bg-[#b9895e] text-sm font-bold text-white">
                   {initials}
                 </div>
                 <div className="min-w-0 flex-1">
@@ -160,7 +160,7 @@ export default function AdminLayout() {
           )}
           <button
             onClick={handleLogout}
-            className="flex w-full items-center rounded-2xl px-4 py-3 text-sm font-semibold text-stone-400 transition hover:bg-red-500/10 hover:text-red-200"
+            className="flex w-full items-center rounded-2xl px-3 py-2 text-sm font-semibold text-stone-400 transition hover:bg-red-500/10 hover:text-red-200"
           >
             <LogOut className="mr-3 h-5 w-5" />
             Keluar
