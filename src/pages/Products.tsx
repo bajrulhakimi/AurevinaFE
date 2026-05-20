@@ -1,7 +1,8 @@
 ﻿import { useEffect, useMemo, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
+import { useRef } from "react";
 import API, { extractApiList, getApiErrorMessage, getApiStatus } from "../services/api";
-import { Search, Edit, Trash2, Package, Scissors, X, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Edit, Trash2, Package, Scissors, X, ChevronDown, ChevronLeft, ChevronRight, Copy } from "lucide-react";
 import Categories from "./Categories";
 
 interface CategoryOption {
@@ -137,6 +138,28 @@ const isColorVariant = (variant: ProductVariant) => {
   return colorName !== "" && colorName !== "-";
 };
 
+const productStatusLabel = (status: string) => {
+  const labels: Record<string, string> = {
+    draft: "Draft",
+    active: "Tersedia",
+    inactive: "Nonaktif",
+    archived: "Arsip",
+  };
+
+  return labels[status] || status;
+};
+
+const productStatusClass = (status: string) => {
+  const classes: Record<string, string> = {
+    draft: "bg-amber-50 text-amber-700",
+    active: "bg-green-50 text-green-700",
+    inactive: "bg-slate-100 text-slate-600",
+    archived: "bg-rose-50 text-rose-700",
+  };
+
+  return classes[status] || "bg-slate-100 text-slate-600";
+};
+
 function ImagePreview({ file, src, alt }: { file?: File | null; src?: string | null; alt: string }) {
   const [preview, setPreview] = useState<string | null>(null);
 
@@ -184,6 +207,7 @@ export default function Products() {
   const [expandedVariantProducts, setExpandedVariantProducts] = useState<Set<number>>(() => new Set());
   const [productPage, setProductPage] = useState(1);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [copyingFromName, setCopyingFromName] = useState<string | null>(null);
   const [variationsEnabled, setVariationsEnabled] = useState(false);
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -218,6 +242,7 @@ export default function Products() {
   const [colorVariations, setColorVariations] = useState<ColorVariation[]>(() => [
     createColorVariation(1),
   ]);
+  const submitStatusOverride = useRef<string | null>(null);
   const existingImageUrls = useMemo(
     () =>
       existingProductImages
@@ -281,6 +306,7 @@ export default function Products() {
     setColorVariations([createColorVariation(1)]);
     setError(null);
     setEditingId(null);
+    setCopyingFromName(null);
   };
 
   const selectTab = (tab: "manage" | "add" | "categories") => {
@@ -336,6 +362,7 @@ export default function Products() {
     const variants = (product.variants || []).filter(isColorVariant);
 
     setEditingId(product.id);
+    setCopyingFromName(null);
     setFormData({
       name,
       slug: product.slug ?? name.toLowerCase().replace(/\s+/g, "-"),
@@ -383,6 +410,59 @@ export default function Products() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const copyProductToForm = (product: Product) => {
+    const name = productDisplayName(product);
+    const variants = (product.variants || []).filter(isColorVariant);
+
+    setEditingId(null);
+    setCopyingFromName(name);
+    setFormData({
+      name: `${name} Copy`,
+      slug: "",
+      sku: "",
+      description: product.description || "",
+      category_id: product.category?.id.toString() || "",
+      total_stock: product.total_stock.toString(),
+      base_price: product.base_price.toString(),
+      special_price: product.special_price?.toString() || "",
+      special_start_date: product.special_start_date?.slice(0, 10) || "",
+      special_end_date: product.special_end_date?.slice(0, 10) || "",
+      weight: product.weight?.toString() || "0",
+      status: "draft",
+      show_on_hero: false,
+      image: null,
+    });
+    setVariationsEnabled(variants.length > 0);
+    setColorVariations(
+      variants.length > 0
+        ? variants.map((variant, index) => ({
+            id: index + 1,
+            variantId: undefined,
+            color: variant.color || variant.variant_value || "",
+            sku: "",
+            price: ((product.base_price || 0) + (variant.additional_price || 0)).toString(),
+            stock: variant.stock.toString(),
+            image: null,
+            existingImage: variant.image || variant.variant_image || null,
+          }))
+        : [createColorVariation(1)]
+    );
+    setVideoFile(null);
+    setProductImages(emptyProductImageSlots());
+    setExistingProductImages(
+      product.images?.length
+        ? product.images
+        : product.main_image
+          ? [{ id: 0, image_url: product.main_image }]
+          : []
+    );
+    setBulkVariantPrice("");
+    setBulkVariantStock("");
+    setError(null);
+    setActiveTab("add");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const cancelEditing = () => {
     resetCreateForm();
     setActiveTab("manage");
@@ -396,6 +476,11 @@ export default function Products() {
       const files = Array.from(target.files ?? []).slice(0, 5);
       setProductImages([...files, ...emptyProductImageSlots()].slice(0, 5));
       setFormData({ ...formData, image: files[0] ?? null });
+      return;
+    }
+
+    if (name === "status") {
+      setFormData({ ...formData, status: value, show_on_hero: value === "active" ? formData.show_on_hero : false });
       return;
     }
 
@@ -502,6 +587,8 @@ export default function Products() {
     event.preventDefault();
     setSaving(true);
     setError(null);
+    const resolvedStatus = submitStatusOverride.current || formData.status;
+    const shouldUseExistingImages = !editingId && compactProductImages.length === 0 && existingImageUrls.length > 0;
 
     const payload = new FormData();
     payload.append("product_name", formData.name);
@@ -519,8 +606,8 @@ export default function Products() {
     if (formData.special_start_date) payload.append("special_start_date", formData.special_start_date);
     if (formData.special_end_date) payload.append("special_end_date", formData.special_end_date);
     payload.append("weight", formData.weight);
-    payload.append("status", formData.status);
-    payload.append("show_on_hero", formData.show_on_hero ? "1" : "0");
+    payload.append("status", resolvedStatus);
+    payload.append("show_on_hero", resolvedStatus === "active" && formData.show_on_hero ? "1" : "0");
     payload.append("variations_enabled", variationsEnabled ? "1" : "0");
     const optimizedProductImages = await Promise.all(
       compactProductImages.map((image) => compressImageFile(image))
@@ -532,6 +619,11 @@ export default function Products() {
     });
     if (optimizedFallbackImage && optimizedProductImages.length === 0) {
       payload.append("image", optimizedFallbackImage);
+    }
+    if (shouldUseExistingImages) {
+      existingImageUrls.slice(0, 5).forEach((image) => {
+        payload.append("existing_images[]", image);
+      });
     }
 
     // Append color variations
@@ -577,6 +669,7 @@ export default function Products() {
       console.error(err);
       setError(getApiErrorMessage(err, "Unable to save product."));
     } finally {
+      submitStatusOverride.current = null;
       setSaving(false);
     }
   };
@@ -624,6 +717,11 @@ export default function Products() {
 
     if (nextValue && heroProducts.length >= 4) {
       setError("Maksimal hanya 4 produk yang bisa tampil di hero.");
+      return;
+    }
+
+    if (nextValue && product.status !== "active") {
+      setError("Produk harus berstatus Active agar bisa tampil di hero.");
       return;
     }
 
@@ -741,6 +839,23 @@ export default function Products() {
                 className="rounded-xl border border-blue-200 bg-white px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50"
               >
                 Batal Ubah
+              </button>
+            </div>
+          )}
+          {copyingFromName && (
+            <div className="flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold text-amber-900">Mode Salin Produk</p>
+                <p className="mt-1 text-sm text-amber-700">
+                  Data disalin dari {copyingFromName}. Produk baru disimpan sebagai draft dulu supaya aman sebelum ditampilkan.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={resetCreateForm}
+                className="rounded-2xl bg-white px-4 py-2 text-sm font-semibold text-amber-700 shadow-sm hover:bg-amber-100"
+              >
+                Batal Salin
               </button>
             </div>
           )}
@@ -1145,8 +1260,10 @@ Hitam, Mocca, Cream, Dusty Pink
                   onChange={handleChange}
                   className="mt-2 w-full rounded-3xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
                 >
+                  <option value="draft">Draft</option>
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
+                  <option value="archived">Archived</option>
                 </select>
               </div>
               <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
@@ -1154,6 +1271,7 @@ Hitam, Mocca, Cream, Dusty Pink
                   <input
                     type="checkbox"
                     checked={formData.show_on_hero}
+                    disabled={formData.status !== "active"}
                     onChange={(event) => setFormData({ ...formData, show_on_hero: event.target.checked })}
                     className="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                   />
@@ -1161,6 +1279,7 @@ Hitam, Mocca, Cream, Dusty Pink
                     <span className="block text-sm font-semibold text-slate-900">Tampilkan di Hero</span>
                     <span className="mt-1 block text-sm leading-5 text-slate-600">
                       Maksimal 4 produk. Produk harus aktif dan memiliki foto utama agar terlihat bagus di slider beranda.
+                      {formData.status !== "active" ? " Aktifkan status produk dulu untuk memakai hero." : ""}
                     </span>
                   </span>
                 </label>
@@ -1170,14 +1289,35 @@ Hitam, Mocca, Cream, Dusty Pink
 
           <div className="flex flex-col gap-3 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-semibold text-slate-900">{editingId ? "Simpan Perubahan" : "Simpan dan Tampilkan"}</p>
+              <p className="text-sm font-semibold text-slate-900">{editingId ? "Simpan Perubahan" : copyingFromName ? "Simpan Salinan Produk" : "Simpan Produk"}</p>
               <p className="mt-2 text-sm text-slate-600">
-                {editingId ? "Perubahan produk akan langsung disimpan ke data admin." : "Produk akan masuk review lalu tampil setelah berhasil dibuat."}
+                {editingId
+                  ? "Perubahan produk akan langsung disimpan ke data admin."
+                  : "Gunakan draft kalau produk belum siap tampil di halaman customer."}
               </p>
             </div>
-            <button type="submit" disabled={saving} className="inline-flex items-center justify-center rounded-3xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-400">
-              {saving ? "Menyimpan..." : editingId ? "Simpan Perubahan" : "Simpan dan Tampilkan"}
-            </button>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <button
+                type="submit"
+                disabled={saving}
+                onClick={() => {
+                  submitStatusOverride.current = "draft";
+                }}
+                className="inline-flex items-center justify-center rounded-3xl border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-100"
+              >
+                {saving ? "Menyimpan..." : "Simpan ke Draft"}
+              </button>
+              <button
+                type="submit"
+                disabled={saving}
+                onClick={() => {
+                  submitStatusOverride.current = editingId ? null : "active";
+                }}
+                className="inline-flex items-center justify-center rounded-3xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-400"
+              >
+                {saving ? "Menyimpan..." : editingId ? "Simpan Perubahan" : "Simpan dan Tampilkan"}
+              </button>
+            </div>
           </div>
         </form>
       ) : (
@@ -1244,7 +1384,9 @@ Hitam, Mocca, Cream, Dusty Pink
                               </div>
                               <div className="min-w-0">
                               <div className="mb-1 flex flex-wrap gap-1">
-                                <span className="rounded bg-green-50 px-2 py-0.5 text-[11px] font-medium text-green-700">Tersedia</span>
+                                <span className={`rounded px-2 py-0.5 text-[11px] font-medium ${productStatusClass(product.status)}`}>
+                                  {productStatusLabel(product.status)}
+                                </span>
                                 <span className="rounded bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700">{categoryDisplayName(product)}</span>
                                 {product.show_on_hero ? (
                                   <span className="rounded bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">Hero #{product.hero_position || "-"}</span>
@@ -1317,6 +1459,9 @@ Hitam, Mocca, Cream, Dusty Pink
                               </button>
                               <button type="button" onClick={() => openProductEditor(product)} className="text-blue-600 hover:text-blue-900" title="Ubah produk">
                                 <Edit className="h-4 w-4" />
+                              </button>
+                              <button type="button" onClick={() => copyProductToForm(product)} className="text-slate-600 hover:text-[#8f3d5b]" title="Salin produk">
+                                <Copy className="h-4 w-4" />
                               </button>
                               <button type="button" onClick={() => deleteProduct(product.id)} className="text-red-600 hover:text-red-900" title="Hapus produk">
                                 <Trash2 className="h-4 w-4" />
