@@ -354,7 +354,7 @@ export default function ProductDetailPage() {
                     <h2 className="text-sm font-bold text-slate-900">Pilih Warna</h2>
                     <span className="text-xs font-semibold text-slate-400">{colorVariants.length} pilihan</span>
                   </div>
-                  <div className="mt-3 max-h-[276px] overflow-y-auto pr-2 [scrollbar-color:#8f8f8f_transparent] [scrollbar-width:thin]">
+                  <div className="scrollbar-hide mt-3 max-h-[276px] overflow-y-auto pr-2">
                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                     {colorVariants.map((variant) => {
                       const image = variant.image || variant.variant_image || product.main_image;

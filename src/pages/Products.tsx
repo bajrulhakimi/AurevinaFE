@@ -80,6 +80,51 @@ const nextVariationId = (items: Array<{ id: number }>) =>
   items.reduce((maxId, item) => Math.max(maxId, item.id), 0) + 1;
 
 const emptyProductImageSlots = () => Array<File | null>(5).fill(null);
+const MAX_UPLOAD_IMAGE_SIZE = 1200;
+const UPLOAD_IMAGE_QUALITY = 0.82;
+
+const compressImageFile = async (file: File) => {
+  if (!file.type.startsWith("image/") || file.type === "image/gif") {
+    return file;
+  }
+
+  const objectUrl = URL.createObjectURL(file);
+  try {
+    const image = new Image();
+    image.src = objectUrl;
+    await new Promise<void>((resolve, reject) => {
+      image.onload = () => resolve();
+      image.onerror = reject;
+    });
+
+    const scale = Math.min(1, MAX_UPLOAD_IMAGE_SIZE / Math.max(image.naturalWidth, image.naturalHeight));
+    const width = Math.max(1, Math.round(image.naturalWidth * scale));
+    const height = Math.max(1, Math.round(image.naturalHeight * scale));
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+
+    const context = canvas.getContext("2d");
+    if (!context) return file;
+
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, width, height);
+    context.drawImage(image, 0, 0, width, height);
+
+    const blob = await new Promise<Blob | null>((resolve) => {
+      canvas.toBlob(resolve, "image/jpeg", UPLOAD_IMAGE_QUALITY);
+    });
+
+    if (!blob || blob.size >= file.size) return file;
+
+    return new File([blob], file.name.replace(/\.[^.]+$/, ".jpg"), {
+      type: "image/jpeg",
+      lastModified: Date.now(),
+    });
+  } finally {
+    URL.revokeObjectURL(objectUrl);
+  }
+};
 
 const productDisplayName = (product: Product) =>
   product.name || product.product_name || "Untitled Product";
@@ -477,18 +522,25 @@ export default function Products() {
     payload.append("status", formData.status);
     payload.append("show_on_hero", formData.show_on_hero ? "1" : "0");
     payload.append("variations_enabled", variationsEnabled ? "1" : "0");
-    compactProductImages.forEach((image) => {
+    const optimizedProductImages = await Promise.all(
+      compactProductImages.map((image) => compressImageFile(image))
+    );
+    const optimizedFallbackImage = formData.image ? await compressImageFile(formData.image) : null;
+
+    optimizedProductImages.forEach((image) => {
       payload.append("images[]", image);
     });
-    if (formData.image && compactProductImages.length === 0) {
-      payload.append("image", formData.image);
+    if (optimizedFallbackImage && optimizedProductImages.length === 0) {
+      payload.append("image", optimizedFallbackImage);
     }
 
     // Append color variations
     if (variationsEnabled && colorVariations.length > 0) {
-      colorVariations
-        .filter((variation) => variation.color.trim() || variation.image instanceof File || variation.existingImage)
-        .forEach((variation, index) => {
+      const activeColorVariations = colorVariations.filter(
+        (variation) => variation.color.trim() || variation.image instanceof File || variation.existingImage
+      );
+
+      for (const [index, variation] of activeColorVariations.entries()) {
         const colorName = variation.color.trim() || `Varian ${index + 1}`;
         const skuValue = variation.sku.trim() || `${formData.sku.trim() || formData.name.trim().replace(/\s+/g, "-").toUpperCase()}-${colorName.replace(/\s+/g, "-").toUpperCase()}`;
         payload.append(`color_variations[${index}][color]`, colorName);
@@ -496,12 +548,12 @@ export default function Products() {
         payload.append(`color_variations[${index}][price]`, variation.price.toString().trim() || formData.base_price || "0");
         payload.append(`color_variations[${index}][stock]`, variation.stock.toString().trim() || formData.total_stock || "0");
         if (variation.image instanceof File) {
-          payload.append(`color_variations[${index}][image]`, variation.image);
+          payload.append(`color_variations[${index}][image]`, await compressImageFile(variation.image));
         }
         if (variation.existingImage && !(variation.image instanceof File)) {
           payload.append(`color_variations[${index}][existing_image]`, variation.existingImage);
         }
-      });
+      }
     }
 
     if (editingId) {
